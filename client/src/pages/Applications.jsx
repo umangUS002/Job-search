@@ -72,7 +72,7 @@ function Applications() {
             <button onClick={updateResume} className='bg-green-100 border border-green-400 rounded-lg px-4 py-2'>Save</button>
         </>
         : <div className='flex gap-2'>
-          <a target="_blank" href={userData.resume} className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg'>
+          <a target="_blank" href={userData?.resume} className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg'>
             Resume
           </a>
           <button onClick={()=>setIsEdit(true)} className='text-gray-500 border border-gray-300 rounded-lg px-4 py-2'>
@@ -95,16 +95,16 @@ function Applications() {
         <tbody>
           {userApplications.map((job, index) => true ? (
             <tr key={index}>
-              <td className='px-4 py-4 flex items-center gap-2'>
-                <img className='w-8 h-8' src={job.companyId.image} alt='' />
-                {job.companyId.name}
+              <td className='px-4 py-4 flex border-b items-center gap-2'>
+                <img className='w-8 h-8' src={job.companyId?.image} alt='' />
+                {job.companyId?.name}
               </td>
-              <td className='py-2 px-4 border-b'>{job.jobId.title}</td>
-              <td className='py-2 px-4 border-b max-sm:hidden'>{job.jobId.location}</td>
-              <td className='py-2 px-4 border-b'>{moment(job.date).format('ll')}</td>
+              <td className='py-2 px-4 border-b'>{job.jobId?.title}</td>
+              <td className='py-2 px-4 border-b max-sm:hidden'>{job.jobId?.location}</td>
+              <td className='py-2 px-4 border-b'>{moment(job?.date).format('ll')}</td>
               <td className='py-2 px-4 border-b'>
-                <span className={`${job.status === 'Accepted' ? 'bg-green-100': job.status === 'Rejected' ? 'bg-red-100' : 'bg-blue-100'} px-4 py-1.5 rounded`}>
-                  {job.status}
+                <span className={`${job?.status === 'Accepted' ? 'bg-green-100': job?.status === 'Rejected' ? 'bg-red-100' : 'bg-blue-100'} px-4 py-1.5 rounded`}>
+                  {job?.status}
                 </span>
               </td>
             </tr>

@@ -113,11 +113,11 @@ export const AppContextProvider = (props) => {
 
     useEffect(() => {
         fetchJobs();
-        const storedCompanyToken = localStorage.getItem('companyToken')
+        // const storedCompanyToken = localStorage.getItem('companyToken')
 
-        if (storedCompanyToken) {
-            setCompanyToken(storedCompanyToken);
-        }
+        // if (storedCompanyToken) {
+        //     setCompanyToken(storedCompanyToken);
+        // }
     }, [])
 
     useEffect(() => {
