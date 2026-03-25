@@ -2,6 +2,7 @@ import Company from "../models/Company.js";
 import Job from "../models/Job.js";
 import { detectLevel } from "../scraper/utils/parser.js";
 import dotenv from "dotenv";
+import { extractSkills } from "../utils/extractSkills.js";
 dotenv.config();
 
 export const saveJobs = async (companySlug, jobs) => {
@@ -42,6 +43,7 @@ export const saveJobs = async (companySlug, jobs) => {
               location: job.location?.name || job.location,
               companyId: company._id,
               company: companySlug,
+              skills: extractSkills(job.description),
               url: jobUrl,
               date: Date.now(),
 

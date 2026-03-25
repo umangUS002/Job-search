@@ -1,10 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Worker } from "bullmq";
+import { Worker } from "bullmq"; // ✅ FIX
 import { redisConnection } from "../configs/redis.js";
-import { scrapeGreenhouse } from "../scraper/sources/greenhouse.js";
 import connectDB from "../configs/db.js";
+
+import { scrapeGreenhouse } from "../scraper/sources/greenhouse.js";
+import { scrapeLever } from "../scraper/sources/lever.js";
 import { saveJobs } from "../services/jobServices.js";
 
 console.log("Worker started...");
@@ -18,15 +20,19 @@ new Worker(
 
     console.log("Processing:", companySlug);
 
-    // 🔥 STEP 1: SCRAPE
-    const jobs = await scrapeGreenhouse(companySlug);
+    // ⚡ parallel scraping
+    const [greenhouseJobs, leverJobs] = await Promise.all([
+      scrapeGreenhouse(companySlug),
+      scrapeLever(companySlug)
+    ]);
 
-    console.log("Jobs scraped:", jobs.length);
+    const jobs = [...greenhouseJobs, ...leverJobs];
 
-    // 🔥 STEP 2: SAVE
+    console.log("Jobs found:", jobs.length);
+
     await saveJobs(companySlug, jobs);
 
-    console.log("Jobs saved:", companySlug);
+    console.log("Saved:", companySlug);
 
   },
   { connection: redisConnection }

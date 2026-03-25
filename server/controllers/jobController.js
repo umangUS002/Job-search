@@ -36,6 +36,7 @@ export const getJobById = async (req, res) => {
     }
 }
 
+// Save scrapped jobs
 export const saveScrapedJobs = async (req, res) => {
     try {
 
@@ -54,3 +55,40 @@ export const saveScrapedJobs = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
+
+// Filter jobs
+export const filterJobs = async (req, res) => {
+  try {
+
+    const { keyword, location, skill } = req.query;
+
+    let query = {};
+
+    // 🔍 keyword search
+    if (keyword) {
+      query.$or = [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } }
+      ];
+    }
+
+    // 📍 location
+    if (location) {
+      query.location = { $regex: location, $options: "i" };
+    }
+
+    // 🧠 skill filter
+    if (skill) {
+      query.skills = { $regex: skill, $options: "i" };
+    }
+
+    const jobs = await Job.find(query)
+      .populate("companyId")
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, jobs });
+
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { detectLevel, detectCategory } from "../utils/parser.js";
 
 export async function scrapeLever(company) {
 
@@ -7,38 +6,40 @@ export async function scrapeLever(company) {
 
     const url = `https://api.lever.co/v0/postings/${company}?mode=json`;
 
-    const res = await axios.get(url);
+    const res = await axios.get(url, { timeout: 5000 });
 
-    const jobs = res.data.map(job => ({
+    const jobs = res.data;
 
-      title: job.text,
+    const filtered = jobs
+      .filter(job => {
 
-      description: job.description || "",
+        const location = job.categories?.location || "";
 
-      location: job.categories?.location || "Remote",
+        const isIndia =
+          location.toLowerCase().includes("india") ||
+          location.toLowerCase().includes("remote");
 
-      category: detectCategory(job.text),
+        const isIntern =
+          /intern|internship|trainee/i.test(job.text);
 
-      level: detectLevel(job.text),
+        return isIndia && isIntern;
+      })
+      .map(job => ({
+        title: job.text,
+        description: job.description || "",
+        location: job.categories?.location || "Remote",
+        url: job.hostedUrl,
+        source: "lever"
+      }));
 
-      salary: null,
+    console.log(`Lever: ${company} → ${filtered.length} jobs`);
 
-      date: new Date(job.createdAt).getTime(),
-
-      company,
-
-      url: job.hostedUrl
-
-    }));
-
-    return jobs;
+    return filtered;
 
   } catch (err) {
 
     console.log("Lever error:", company);
-
     return [];
 
   }
-
 }

@@ -151,6 +151,16 @@ function ApplyJob() {
                   </span>
 
                 </div>
+                <div className="flex gap-2 flex-wrap">
+                  {JobData.skills?.map((skill, i) => (
+                    <span
+                      key={i}
+                      className="bg-blue-200 px-2 mt-2 py-1 rounded text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -193,7 +203,6 @@ function ApplyJob() {
 
             {/* Job Description */}
             <div className="w-full lg:w-2/3">
-
               <h2 className="font-bold text-3xl mb-4">Job Description</h2>
 
               <div className="prose max-w-none">
@@ -208,7 +217,7 @@ function ApplyJob() {
                   href={JobData.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 p-2.5 px-10 text-white rounded cursor-pointer inline-block text-center"
+                  className="bg-green-600 p-2.5 px-10 mt-3 text-white rounded cursor-pointer inline-block text-center"
                 >
                   Apply Externally
                 </a>
@@ -217,7 +226,7 @@ function ApplyJob() {
                 <button
                   onClick={applyHandler}
                   disabled={isAlreadyApplied}
-                  className={`p-2.5 px-10 text-white rounded cursor-pointer ${isAlreadyApplied ? "bg-green-600" : "bg-blue-600"
+                  className={`p-2.5 px-10 text-white mt-3 rounded cursor-pointer ${isAlreadyApplied ? "bg-green-600" : "bg-blue-600"
                     }`}
                 >
                   {isAlreadyApplied ? "Already Applied" : "Apply Now"}

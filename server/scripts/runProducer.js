@@ -1,14 +1,16 @@
 import { addCompanyToQueue } from "../producers/jobProducer.js";
-
-const companies = ["datadog"];
+import { discoverGreenhouseCompanies } from "../scraper/utils/discoverCompanies.js";
 
 const run = async () => {
 
-  for (const company of companies) {
+  const companies = await discoverGreenhouseCompanies();
 
-    await addCompanyToQueue(company);
+  console.log("Discovered companies:", companies.length);
 
-  }
+  // ⚡ Add all to queue
+  await Promise.all(
+    companies.map(company => addCompanyToQueue(company))
+  );
 
   console.log("All companies added to queue");
 

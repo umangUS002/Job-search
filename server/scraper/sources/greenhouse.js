@@ -8,31 +8,54 @@ export async function scrapeGreenhouse(company) {
 
     const res = await axios.get(`${baseUrl}/jobs`);
 
-    const jobs = [];
+    // 🔥 LIMIT to avoid overload (increase later)
+    const limitedJobs = res.data.jobs.slice(0, 20);
 
-    for (const job of res.data.jobs) {
+    // ⚡ PARALLEL FETCH (instead of slow loop)
+    const jobs = await Promise.all(
+      limitedJobs.map(async (job) => {
 
-      // 🔥 fetch full job details
-      const detailRes = await axios.get(
-        `${baseUrl}/jobs/${job.id}`
-      );
+        try {
 
-      const detail = detailRes.data;
+          const location = job.location?.name || "";
 
-      jobs.push({
-        ...job, // keep all original fields
+          // 🇮🇳 INDIA FILTER
+          const isIndia =
+            location.toLowerCase().includes("india") ||
+            location.toLowerCase().includes("remote");
 
-        // overwrite / add extra fields
-        description: detail.content || "",
-        location: job.location?.name || "Remote",
-        url: job.absolute_url
-      });
+          if (!isIndia) return null;
 
-      // prevent rate limit
-      await new Promise(r => setTimeout(r, 150));
-    }
+          const detailRes = await axios.get(
+            `${baseUrl}/jobs/${job.id}`,
+            { timeout: 5000 }
+          );
 
-    return jobs;
+          const detail = detailRes.data;
+
+          return {
+            ...job,
+
+            // keep your existing fields
+            description: detail.content || "",
+            location: location || "Remote",
+            url: job.absolute_url
+          };
+
+        } catch (err) {
+          console.log("Failed job:", job.title);
+          return null;
+        }
+
+      })
+    );
+
+    // remove nulls
+    const filteredJobs = jobs.filter(Boolean);
+
+    console.log(`Scraped ${filteredJobs.length} jobs from ${company}`);
+
+    return filteredJobs;
 
   } catch (err) {
 
