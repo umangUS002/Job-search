@@ -4,7 +4,6 @@ import { redisConnection } from "../configs/redis.js";
 import { scrapeGreenhouse } from "../scraper/sources/greenhouse.js";
 import { scrapeLever } from "../scraper/sources/lever.js";
 import { saveJobs } from "../services/jobServices.js";
-
 import connectDB from "../configs/db.js";
 
 console.log("🚀 Worker starting...");
@@ -20,7 +19,6 @@ new Worker(
 
     try {
 
-      // 🔥 parallel scraping
       const [greenhouseJobs, leverJobs] = await Promise.all([
         scrapeGreenhouse(companySlug),
         scrapeLever(companySlug)

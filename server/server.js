@@ -11,6 +11,9 @@ import jobRouter from './routes/jobRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import { clerkMiddleware } from '@clerk/express';
 
+import "./workers/scrapeWorker.js";   // 🔥 starts worker
+import "./scheduler/jobScheduler.js";
+
 // Intilise app
 const app = express();
 

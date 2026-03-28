@@ -1,3 +1,4 @@
+import { esClient } from "../configs/elasticSearch.js";
 import Job from "../models/Job.js"
 
 
@@ -90,5 +91,69 @@ export const filterJobs = async (req, res) => {
 
   } catch (error) {
     res.json({ success: false, message: error.message });
+  }
+};
+
+// Elastic Search
+export const searchJobsES = async (req, res) => {
+  try {
+    const { keyword, location, skill } = req.query;
+
+    let must = [];
+
+    // 🔍 keyword
+    if (keyword) {
+      must.push({
+        multi_match: {
+          query: keyword,
+          fields: ["title^2", "description"],
+          fuzziness: "AUTO"
+        }
+      });
+    }
+
+    // 📍 location
+    if (location) {
+      must.push({
+        match: {
+          location: {
+            query: location,
+            fuzziness: "AUTO"
+          }
+        }
+      });
+    }
+
+    // 🧠 skill
+    if (skill) {
+      must.push({
+        match: {
+          skills: {
+            query: skill,
+            fuzziness: "AUTO"
+          }
+        }
+      });
+    }
+
+    // ⭐ IMPORTANT FIX
+    if (must.length === 0) {
+      must.push({ match_all: {} });
+    }
+
+    const response = await esClient.search({
+      index: "jobs",
+      query: {
+        bool: { must }
+      }
+    });
+
+    const jobs = response.hits.hits.map(hit => hit._source);
+
+    res.json({ success: true, jobs });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: err.message });
   }
 };
