@@ -57,62 +57,173 @@ function Applications() {
 
   return (
     <>
-      <Navbar/> 
-      <div className='container px-4 min-h-[65vh] 2xl:px-20 mx-auto my-10'>
-        <h2 className='text-xl font-semibold'>Your Resume</h2>
-        <div className='flex gap-2 mb-6 mt-3'>
-      {
-        isEdit || userData && userData.resume === ""
-        ? <>
-            <label className='flex items-center' htmlFor='resumeUpload'>
-              <p className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg mr-2'>{resume ? resume.name : "Select Resume"}</p>
-              <input id='resumeUpload' onChange={e => setResume(e.target.files[0])} accept='application/pdf' type='file' hidden/>
-              <img src={assets.profile_upload_icon} alt='' />
-            </label>
-            <button onClick={updateResume} className='bg-green-100 border border-green-400 rounded-lg px-4 py-2'>Save</button>
-        </>
-        : <div className='flex gap-2'>
-          <a target="_blank" href={userData?.resume} className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg'>
-            Resume
-          </a>
-          <button onClick={()=>setIsEdit(true)} className='text-gray-500 border border-gray-300 rounded-lg px-4 py-2'>
-            Edit
-          </button>
+      <Navbar /> 
+      <div className='container px-4 min-h-[70vh] 2xl:px-20 mx-auto my-12'>
+        
+        {/* Resume Section */}
+        <div className='bg-white border border-slate-100 shadow-sm p-6 sm:p-8 rounded-3xl mb-10'>
+          <h2 className='text-xl font-bold text-slate-800 mb-2'>Your Profile Resume</h2>
+          <p className='text-xs text-slate-400 mb-5'>Upload or update your PDF resume to instantly apply to listings.</p>
+          <div className='flex gap-3 items-center flex-wrap'>
+            {
+              isEdit || userData && userData.resume === ""
+              ? <>
+                  <label className='flex items-center cursor-pointer' htmlFor='resumeUpload'>
+                    <div className='bg-slate-50 hover:bg-slate-100 border border-slate-200 px-5 py-2.5 rounded-xl flex items-center gap-2.5 transition-colors duration-150'>
+                      <p className='text-sm text-slate-600 font-semibold'>{resume ? resume.name : "Select Resume (PDF)"}</p>
+                      <img className='w-4 opacity-70' src={assets.profile_upload_icon} alt='' />
+                    </div>
+                    <input id='resumeUpload' onChange={e => setResume(e.target.files[0])} accept='application/pdf' type='file' hidden/>
+                  </label>
+                  <button onClick={updateResume} className='bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm font-semibold rounded-xl px-6 py-2.5 cursor-pointer text-sm transition-colors duration-200'>
+                    Save
+                  </button>
+                  {userData?.resume && (
+                    <button onClick={()=>setIsEdit(false)} className='text-slate-500 border border-slate-250 hover:bg-slate-50 rounded-xl px-5 py-2.5 text-sm transition-colors duration-200 font-semibold cursor-pointer'>
+                      Cancel
+                    </button>
+                  )}
+              </>
+              : <div className='flex gap-3'>
+                <a target="_blank" href={userData?.resume} className='bg-indigo-50 text-indigo-600 border border-indigo-100/50 hover:bg-indigo-100 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm'>
+                  View Resume
+                </a>
+                <button onClick={()=>setIsEdit(true)} className='text-slate-500 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 rounded-xl px-5 py-2.5 text-sm transition-all duration-200 font-semibold cursor-pointer'>
+                  Replace
+                </button>
+              </div>
+            }
+          </div>
+
+          {/* AI Extracted Profile Insights */}
+          {userData?.resumeData && (
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <h3 className="text-lg font-bold text-indigo-650 flex items-center gap-2 mb-4">
+                <span className="inline-block p-1 bg-indigo-50 text-indigo-600 rounded-lg">✨</span>
+                AI-Extracted Resume Profile
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left: Skills & Education */}
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Skills Extracted</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {userData.resumeData.skills?.map((skill, idx) => (
+                        <span key={idx} className="bg-slate-50 border border-slate-200/60 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600">
+                          {skill}
+                        </span>
+                      ))}
+                      {(!userData.resumeData.skills || userData.resumeData.skills.length === 0) && (
+                        <span className="text-xs text-slate-400">No skills parsed yet.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Education</h4>
+                    <div className="space-y-3">
+                      {userData.resumeData.education?.map((edu, idx) => (
+                        <div key={idx} className="bg-slate-50/50 border border-slate-100 p-3 rounded-xl">
+                          <p className="text-sm font-bold text-slate-700">{edu.degree}</p>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">{edu.school} | {edu.year}</p>
+                        </div>
+                      ))}
+                      {(!userData.resumeData.education || userData.resumeData.education.length === 0) && (
+                        <p className="text-xs text-slate-400">No education entries parsed.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Experience & Projects */}
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Experience</h4>
+                    <div className="space-y-3">
+                      {userData.resumeData.experience?.map((exp, idx) => (
+                        <div key={idx} className="bg-slate-50/50 border border-slate-100 p-3 rounded-xl">
+                          <p className="text-sm font-bold text-slate-700">{exp.role}</p>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">{exp.company} | {exp.duration}</p>
+                        </div>
+                      ))}
+                      {(!userData.resumeData.experience || userData.resumeData.experience.length === 0) && (
+                        <p className="text-xs text-slate-400">No experience entries parsed.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Projects</h4>
+                    <div className="space-y-3">
+                      {userData.resumeData.projects?.map((proj, idx) => (
+                        <div key={idx} className="bg-slate-50/50 border border-slate-100 p-3 rounded-xl">
+                          <p className="text-sm font-bold text-slate-700">{proj.title}</p>
+                          <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">{proj.description}</p>
+                        </div>
+                      ))}
+                      {(!userData.resumeData.projects || userData.resumeData.projects.length === 0) && (
+                        <p className="text-xs text-slate-400">No projects parsed.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      }
+
+        {/* Applied Jobs Section */}
+        <h2 className='text-xl font-bold text-slate-800 mb-5'>Applied Opportunities</h2>
+        
+        <div className='overflow-x-auto rounded-2xl border border-slate-100 shadow-sm bg-white'>
+          <table className='min-w-full border-collapse'>
+            <thead>
+              <tr className='bg-slate-50/75 border-b border-slate-100'>
+                <th className='py-4 px-6 text-slate-400 font-bold text-xs uppercase tracking-wider text-left'>Company</th>
+                <th className='py-4 px-6 text-slate-400 font-bold text-xs uppercase tracking-wider text-left'>Job Title</th>
+                <th className='py-4 px-6 text-slate-400 font-bold text-xs uppercase tracking-wider text-left max-sm:hidden'>Location</th>
+                <th className='py-4 px-6 text-slate-400 font-bold text-xs uppercase tracking-wider text-left max-sm:hidden'>Applied Date</th>
+                <th className='py-4 px-6 text-slate-400 font-bold text-xs uppercase tracking-wider text-left'>Status</th>
+              </tr>
+            </thead>
+            <tbody className='divide-y divide-slate-50'>
+              {userApplications.map((job, index) => (
+                <tr key={index} className='hover:bg-slate-50/50 transition-colors duration-150'>
+                  <td className='px-6 py-4 flex items-center gap-3 text-sm font-bold text-slate-700'>
+                    <div className='w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 p-1 flex items-center justify-center overflow-hidden'>
+                      <img className='max-h-full max-w-full object-contain' src={job.companyId?.image} alt='' />
+                    </div>
+                    {job.companyId?.name}
+                  </td>
+                  <td className='py-4 px-6 text-slate-600 text-sm font-medium'>{job.jobId?.title}</td>
+                  <td className='py-4 px-6 text-slate-500 text-sm font-medium max-sm:hidden'>{job.jobId?.location}</td>
+                  <td className='py-4 px-6 text-slate-400 text-sm font-medium max-sm:hidden'>{moment(job?.date).format('ll')}</td>
+                  <td className='py-4 px-6'>
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                      job?.status === 'Accepted' 
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                        : job?.status === 'Rejected' 
+                          ? 'bg-rose-50 text-rose-700 border-rose-100' 
+                          : 'bg-amber-50 text-amber-700 border-amber-100'
+                    }`}>
+                      {job?.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {userApplications.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="py-12 text-center text-slate-400 text-sm font-medium">
+                    You haven't applied to any jobs yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <h2 className='text-xl font-semibold mb-4'>Jobs Applied</h2>
-      <table className='min-w-full bg-white border rounded-lg'>
-        <thead>
-          <tr>
-            <th className='py-3 px-4 border-b text-left'>Company</th>
-            <th className='py-3 px-4 border-b text-left'>Job Title</th>
-            <th className='py-3 px-4 border-b text-left max-sm:hidden'>Location</th>
-            <th className='py-3 px-4 border-b text-left max-sm:hidden'>Date</th>
-            <th className='py-3 px-4 border-b text-left'>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {userApplications.map((job, index) => true ? (
-            <tr key={index}>
-              <td className='px-4 py-4 flex border-b items-center gap-2'>
-                <img className='w-8 h-8' src={job.companyId?.image} alt='' />
-                {job.companyId?.name}
-              </td>
-              <td className='py-2 px-4 border-b'>{job.jobId?.title}</td>
-              <td className='py-2 px-4 border-b max-sm:hidden'>{job.jobId?.location}</td>
-              <td className='py-2 px-4 border-b'>{moment(job?.date).format('ll')}</td>
-              <td className='py-2 px-4 border-b'>
-                <span className={`${job?.status === 'Accepted' ? 'bg-green-100': job?.status === 'Rejected' ? 'bg-red-100' : 'bg-blue-100'} px-4 py-1.5 rounded`}>
-                  {job?.status}
-                </span>
-              </td>
-            </tr>
-          ) : (null) )}
-        </tbody>
-      </table>
-    </div>
-    <Footer/>
+      <Footer />
     </>
   )
 }

@@ -1,7 +1,25 @@
 import cron from "node-cron";
 import { addCompanyToQueue } from "../producers/jobProducer.js";
 
-const companies = ["zomato", "myntra", "swiggy", "slice", "jupiter", "cred", "coinswitchkuber", "browserstack", "chargebee", "freshworks", "licious", "dunzo", "shiprocket", "gleanwork", "observeai", "whatfix", "agoda", "atlassian", "acko", "urbancompany", "postman", "razorpay", "phonepe", "groww", "inmobi", "tekion", "zscaler", "atlan", "hasura", "sigmoid", "alphasense", "airbnb", "stripe", "notion", "datadog", "coinbase", "databricks", "cloudfare"];
+const companies = [
+  "phonepe", 
+  "groww", 
+  "inmobi", 
+  "hasura", 
+  "postman", 
+  "tekion", 
+  "zscaler", 
+  "slice", 
+  "cred", 
+  "agoda", 
+  "airbnb", 
+  "stripe", 
+  "notion", 
+  "datadog", 
+  "coinbase", 
+  "remoteok",
+  "majorComps"
+];
 
 cron.schedule("0 2 * * *", async () => {
 

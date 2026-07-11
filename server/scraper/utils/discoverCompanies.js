@@ -6,12 +6,41 @@ export async function discoverGreenhouseCompanies() {
 
     // 🔥 Known seed companies (expand later)
     const seeds = [
+      "phonepe",
+      "groww",
+      "inmobi",
+      "hasura",
+      "postman",
+      "tekion",
+      "zscaler",
+      "slice",
+      "cred",
+      "agoda",
       "airbnb",
       "stripe",
       "notion",
       "datadog",
       "coinbase",
-      "robinhood"
+      "remoteok",
+
+      "razorpay",
+      "browserstack",
+      "chargebee",
+      "freshworks",
+      "whatfix",
+      "devrev",
+      "rocketlane",
+      "observeai",
+      "sarvamai",
+      "krutrim",
+      "hyperverge",
+      "moengage",
+      "cashfree",
+      "smallcase",
+      "open",
+      "fi",
+      "jupiter",
+      "zepto"
     ];
 
     return seeds;

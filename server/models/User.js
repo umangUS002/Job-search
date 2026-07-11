@@ -5,6 +5,23 @@ const userSchema = new mongoose.Schema({
     name: {type: String, required: true},
     email: {type: String, required: true, unique: true},
     resume: {type: String},
+    resumeData: {
+        skills: { type: [String], default: [] },
+        projects: [{
+            title: String,
+            description: String
+        }],
+        education: [{
+            degree: String,
+            school: String,
+            year: String
+        }],
+        experience: [{
+            role: String,
+            company: String,
+            duration: String
+        }]
+    },
     image: {type: String, required: true}
 })
 

@@ -3,6 +3,8 @@ import { redisConnection } from "../configs/redis.js";
 
 import { scrapeGreenhouse } from "../scraper/sources/greenhouse.js";
 import { scrapeLever } from "../scraper/sources/lever.js";
+import { scrapeRemoteOK } from "../scraper/sources/remoteok.js";
+import { scrapeMajorComps } from "../scraper/sources/majorComps.js";
 import { saveJobs } from "../services/jobServices.js";
 
 import connectDB from "../configs/db.js";
@@ -19,14 +21,19 @@ new Worker(
     console.log("🔄 Processing:", companySlug);
 
     try {
+      let jobs = [];
 
-      // 🔥 parallel scraping
-      const [greenhouseJobs, leverJobs] = await Promise.all([
-        scrapeGreenhouse(companySlug),
-        scrapeLever(companySlug)
-      ]);
-
-      const jobs = [...greenhouseJobs, ...leverJobs];
+      if (companySlug === "remoteok") {
+        jobs = await scrapeRemoteOK();
+      } else if (companySlug === "majorComps") {
+        jobs = await scrapeMajorComps();
+      } else {
+        const [greenhouseJobs, leverJobs] = await Promise.all([
+          scrapeGreenhouse(companySlug),
+          scrapeLever(companySlug)
+        ]);
+        jobs = [...greenhouseJobs, ...leverJobs];
+      }
 
       console.log(`📊 ${companySlug} → ${jobs.length} jobs`);
 

@@ -1,6 +1,6 @@
 import Company from "../models/Company.js";
 import Job from "../models/Job.js";
-import { detectLevel } from "../scraper/utils/parser.js";
+import { detectLevel, extractSalary } from "../scraper/utils/parser.js";
 import dotenv from "dotenv";
 import { extractSkills } from "../utils/extractSkills.js";
 import { esClient } from "../configs/elasticSearch.js";
@@ -11,51 +11,100 @@ export const saveJobs = async (companySlug, jobs) => {
   console.log("Saving jobs for:", companySlug);
   console.log("Job count:", jobs.length);
 
-  let company = await Company.findOne({ name: companySlug });
+  if (companySlug === "remoteok" || companySlug === "majorComps") {
+    const bulks = [];
+    for (const job of jobs) {
+      const name = job.companyName || "Remote Company";
+      let company = await Company.findOne({ name: name });
 
-  if (!company) {
-    company = await Company.create({
-      name: companySlug,
-      image: `https://img.logo.dev/${companySlug}.com?token=${process.env.LOGO_DEV_PUBLISHABLE_KEY}`
-    });
-  }
+      if (!company) {
+        company = await Company.create({
+          name: name,
+          image: `https://img.logo.dev/${name.replace(/\s+/g, '').toLowerCase()}.com?token=${process.env.LOGO_DEV_PUBLISHABLE_KEY}`
+        });
+      }
 
-  const jobList = jobs;
+      const jobUrl = job.url;
+      const salaryVal = job.salary || extractSalary(job.description, job.title);
 
-  // 🔥 1. SAVE TO MONGO
-  await Job.bulkWrite(
-    jobList.map(job => {
-
-      const jobUrl = job.url || job.absolute_url;
-
-      return {
+      bulks.push({
         updateOne: {
           filter: { url: jobUrl },
           update: {
             $set: {
               title: job.title,
-              location: job.location?.name || job.location,
+              location: job.location,
               companyId: company._id,
-              company: companySlug,
+              company: name,
               skills: extractSkills(job.description),
               url: jobUrl,
               date: Date.now(),
               description: job.description || "",
-              level: detectLevel(job.title)
+              level: detectLevel(job.title),
+              salary: salaryVal
             }
           },
           upsert: true
         }
-      };
+      });
+    }
 
-    })
-  );
+    if (bulks.length > 0) {
+      await Job.bulkWrite(bulks);
+    }
+    console.log("MongoDB RemoteOK save completed");
 
-  console.log("MongoDB save completed");
+  } else {
+    let company = await Company.findOne({ name: companySlug });
+
+    if (!company) {
+      company = await Company.create({
+        name: companySlug,
+        image: `https://img.logo.dev/${companySlug}.com?token=${process.env.LOGO_DEV_PUBLISHABLE_KEY}`
+      });
+    }
+
+    const jobList = jobs;
+
+    // 🔥 1. SAVE TO MONGO
+    await Job.bulkWrite(
+      jobList.map(job => {
+
+        const jobUrl = job.url || job.absolute_url;
+        console.log(`  👉 Saving Job: ${job.title} at ${companySlug} (${job.location?.name || job.location || "Remote"})`);
+
+        const salaryVal = job.salary || extractSalary(job.description, job.title);
+
+        return {
+          updateOne: {
+            filter: { url: jobUrl },
+            update: {
+              $set: {
+                title: job.title,
+                location: job.location?.name || job.location,
+                companyId: company._id,
+                company: companySlug,
+                skills: extractSkills(job.description),
+                url: jobUrl,
+                date: Date.now(),
+                description: job.description || "",
+                level: detectLevel(job.title),
+                salary: salaryVal
+              }
+            },
+            upsert: true
+          }
+        };
+
+      })
+    );
+
+    console.log("MongoDB save completed");
+  }
 
   // 🔥 2. INDEX INTO ELASTICSEARCH (IMPORTANT)
   await Promise.all(
-    jobList.map(async (job) => {
+    jobs.map(async (job) => {
 
       try {
 
@@ -73,13 +122,13 @@ export const saveJobs = async (companySlug, jobs) => {
             level: detectLevel(job.title)
           }
         });
+        await esClient.indices.refresh({ index: "jobs" });
 
       } catch (err) {
         console.log("ES indexing error:", err.message);
       }
-      await esClient.indices.refresh({ index: "jobs" });
     })
   );
 
-  console.log(`Elasticsearch indexed: ${jobList.length} jobs`);
+  console.log(`Elasticsearch indexed: ${jobs.length} jobs`);
 };

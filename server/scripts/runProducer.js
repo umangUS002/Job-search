@@ -1,7 +1,13 @@
 import { addCompanyToQueue } from "../producers/jobProducer.js";
 import { discoverGreenhouseCompanies } from "../scraper/utils/discoverCompanies.js";
+import connectDB from "../configs/db.js";
+import Job from "../models/Job.js";
 
 const run = async () => {
+  await connectDB();
+  console.log("🧹 Clearing old jobs from database...");
+  await Job.deleteMany({});
+  console.log("✨ Database cleared.");
 
   const companies = await discoverGreenhouseCompanies();
 

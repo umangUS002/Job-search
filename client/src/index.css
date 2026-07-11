@@ -1,13 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
-*{
-  font-family: "Outfit",sans-serif;
+@theme {
+  --color-indigo-cyber: #6366f1;
+  --color-cyan-cyber: #06b6d4;
+  --color-slate-cyber: #0f172a;
 }
 
-@layer base{
-  html{
+* {
+  font-family: "Outfit", sans-serif;
+}
+
+@layer utilities {
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .glassmorphism-dark {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .hover-glow {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hover-glow:hover {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+}
+
+@layer base {
+  html {
     scroll-behavior: smooth;
+    background-color: #fafafa;
   }
 }
 

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { isIndiaJob, isEngineeringAndJuniorJob } from "../utils/parser.js";
 
 export async function scrapeLever(company) {
 
@@ -12,17 +13,8 @@ export async function scrapeLever(company) {
 
     const filtered = jobs
       .filter(job => {
-
         const location = job.categories?.location || "";
-
-        const isIndia =
-          location.toLowerCase().includes("india") ||
-          location.toLowerCase().includes("remote");
-
-        const isIntern =
-          /intern|internship|trainee/i.test(job.text);
-
-        return isIndia && isIntern;
+        return isIndiaJob(location) && isEngineeringAndJuniorJob(job.text);
       })
       .map(job => ({
         title: job.text,

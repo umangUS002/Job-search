@@ -15,15 +15,18 @@ import he from "he";
 
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 
 function ApplyJob() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const { isSignedIn } = useUser();
 
   const [JobData, setJobData] = useState(null);
   const [isAlreadyApplied, setIsAlreadyApplied] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const {
     jobs,
@@ -32,6 +35,25 @@ function ApplyJob() {
     userApplications,
     fetchUserApplications
   } = useContext(AppContext);
+
+  // fetch AI Resume Insights (after login only)
+  const fetchAiAnalysis = async () => {
+    try {
+      setAiLoading(true);
+      const token = await getToken();
+      const { data } = await axios.get(
+        `${backendUrl}/api/jobs/${id}/analyze`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data.success) {
+        setAiAnalysis(data);
+      }
+    } catch (error) {
+      console.log("Failed to load AI resume analysis:", error.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // fetch single job
   const fetchJob = async () => {
@@ -93,6 +115,14 @@ function ApplyJob() {
   }, [id]);
 
   useEffect(() => {
+    if (id && isSignedIn) {
+      fetchAiAnalysis();
+    } else {
+      setAiAnalysis(null);
+    }
+  }, [id, isSignedIn, userData]);
+
+  useEffect(() => {
     if (JobData && userApplications.length > 0) {
       checkAlreadyApplied();
     }
@@ -109,41 +139,43 @@ function ApplyJob() {
         {/* Job Header */}
         <div className="bg-white text-black rounded-lg w-full">
 
-          <div className="flex justify-center md:justify-between flex-wrap gap-8 px-14 py-20 mb-6 bg-sky-50 border border-sky-400 rounded-xl">
+          <div className="flex justify-center md:justify-between flex-wrap gap-8 px-6 sm:px-12 py-14 mb-8 bg-indigo-50/40 border border-indigo-100/60 rounded-3xl shadow-sm">
 
-            <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-5">
 
-              <img
-                className="h-12 w-12 object-contain bg-white p-1 rounded border"
-                src={JobData.companyId?.image || "/company.png"}
-                alt="company"
-              />
+              <div className="w-16 h-16 flex items-center justify-center bg-white border border-slate-100 rounded-2xl p-2 shadow-sm">
+                <img
+                  className="max-h-full max-w-full object-contain"
+                  src={JobData.companyId?.image || "/company.png"}
+                  alt="company"
+                />
+              </div>
 
-              <div className="text-center md:text-left text-neutral-700">
+              <div className="text-center md:text-left text-slate-700">
 
-                <h1 className="text-2xl sm:text-4xl font-medium">
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-850 tracking-tight">
                   {JobData.title}
                 </h1>
 
-                <div className="flex flex-row flex-wrap max-md:justify-center gap-y-2 gap-6 items-center text-gray-600 mt-2">
+                <div className="flex flex-row flex-wrap max-md:justify-center gap-y-2.5 gap-6 items-center text-slate-500 mt-3 text-xs sm:text-sm font-medium">
 
-                  <span className="flex items-center gap-1">
-                    <img src={assets.suitcase_icon} alt="" />
+                  <span className="flex items-center gap-1.5">
+                    <img className="h-4 opacity-60" src={assets.suitcase_icon} alt="" />
                     {JobData.companyId?.name || "Company Name"}
                   </span>
 
-                  <span className="flex items-center gap-1">
-                    <img src={assets.location_icon} alt="" />
+                  <span className="flex items-center gap-1.5">
+                    <img className="h-4 opacity-60" src={assets.location_icon} alt="" />
                     {JobData.location || "Remote"}
                   </span>
 
-                  <span className="flex items-center gap-1">
-                    <img src={assets.person_icon} alt="" />
+                  <span className="flex items-center gap-1.5">
+                    <img className="h-4 opacity-60" src={assets.person_icon} alt="" />
                     {JobData.level || "Not specified"}
                   </span>
 
-                  <span className="flex items-center gap-1">
-                    <img src={assets.money_icon} alt="" />
+                  <span className="flex items-center gap-1.5 text-indigo-600 font-bold">
+                    <img className="h-4 opacity-75" src={assets.money_icon} alt="" />
                     CTC:{" "}
                     {JobData.salary
                       ? kconvert.convertTo(JobData.salary)
@@ -151,11 +183,12 @@ function ApplyJob() {
                   </span>
 
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                
+                <div className="flex gap-2 flex-wrap mt-4">
                   {JobData.skills?.map((skill, i) => (
                     <span
                       key={i}
-                      className="bg-blue-200 px-2 mt-2 py-1 rounded text-sm"
+                      className="bg-indigo-50/70 border border-indigo-100/50 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-600"
                     >
                       {skill}
                     </span>
@@ -172,7 +205,7 @@ function ApplyJob() {
                   href={JobData.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 p-2.5 px-10 text-white rounded cursor-pointer inline-block text-center"
+                  className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 shadow-md shadow-emerald-600/10 text-white p-3 px-10 rounded-2xl cursor-pointer inline-block text-center font-bold transition-all duration-200 hover:scale-[1.02]"
                 >
                   Apply Externally
                 </a>
@@ -181,14 +214,17 @@ function ApplyJob() {
                 <button
                   onClick={applyHandler}
                   disabled={isAlreadyApplied}
-                  className={`p-2.5 px-10 text-white rounded cursor-pointer ${isAlreadyApplied ? "bg-green-600" : "bg-blue-600"
+                  className={`p-3 px-10 text-white rounded-2xl cursor-pointer font-bold shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                    isAlreadyApplied 
+                      ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/10" 
+                      : "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/10"
                     }`}
                 >
                   {isAlreadyApplied ? "Already Applied" : "Apply Now"}
                 </button>
               )}
 
-              <p className="mt-1 text-gray-600">
+              <p className="mt-2 text-slate-400 text-xs font-medium">
                 Posted{" "}
                 {JobData.date
                   ? moment(JobData.date).fromNow()
@@ -197,74 +233,169 @@ function ApplyJob() {
 
             </div>
           </div>
-
-          {/* Main Content */}
-          <div className="flex flex-col lg:flex-row justify-between items-start">
+               {/* Main Content */}
+          <div className="flex flex-col lg:flex-row justify-between items-start gap-10">
 
             {/* Job Description */}
-            <div className="w-full lg:w-2/3">
-              <h2 className="font-bold text-3xl mb-4">Job Description</h2>
+            <div className="w-full lg:w-2/3 bg-white border border-slate-100 p-6 sm:p-8 rounded-3xl shadow-sm">
+              <h2 className="font-extrabold text-2xl text-slate-800 mb-6 pb-3 border-b border-slate-100">Job Description</h2>
 
-              <div className="prose max-w-none">
+              <div className="prose max-w-none text-slate-650 leading-relaxed rich-text">
                 {JobData.description
                   ? parse(he.decode(JobData.description))
                   : "No description available"}
               </div>
 
-              {JobData.url?.startsWith("http") ? (
-                // 🔗 Scraped job → external apply
-                <a
-                  href={JobData.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-600 p-2.5 px-10 mt-3 text-white rounded cursor-pointer inline-block text-center"
-                >
-                  Apply Externally
-                </a>
-              ) : (
-                // 🧑‍💼 Admin job → internal apply
-                <button
-                  onClick={applyHandler}
-                  disabled={isAlreadyApplied}
-                  className={`p-2.5 px-10 text-white mt-3 rounded cursor-pointer ${isAlreadyApplied ? "bg-green-600" : "bg-blue-600"
-                    }`}
-                >
-                  {isAlreadyApplied ? "Already Applied" : "Apply Now"}
-                </button>
+              <div className="mt-8 pt-6 border-t border-slate-100">
+                {JobData.url?.startsWith("http") ? (
+                  // 🔗 Scraped job → external apply
+                  <a
+                    href={JobData.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 shadow-md shadow-emerald-600/10 text-white p-3 px-10 rounded-2xl cursor-pointer inline-block text-center font-bold transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    Apply Externally
+                  </a>
+                ) : (
+                  // 🧑‍💼 Admin job → internal apply
+                  <button
+                    onClick={applyHandler}
+                    disabled={isAlreadyApplied}
+                    className={`p-3.5 px-10 text-white rounded-2xl cursor-pointer font-bold shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                      isAlreadyApplied 
+                        ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/10" 
+                        : "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/10"
+                      }`}
+                  >
+                    {isAlreadyApplied ? "Already Applied" : "Apply Now"}
+                  </button>
+                )}
+              </div>
+
+            </div>
+
+            {/* More Jobs & AI Insights */}
+            <div className="w-full lg:w-1/3 space-y-6">
+
+              {/* AI Resume Match Insights (Authenticated only) */}
+              {isSignedIn && (
+                <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm space-y-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                  
+                  <h3 className="font-extrabold text-lg text-slate-850 flex items-center gap-2">
+                    <span className="inline-block p-1 bg-indigo-50 text-indigo-600 rounded-lg text-sm">✨</span>
+                    AI Resume Insights
+                  </h3>
+
+                  {aiLoading ? (
+                    <div className="flex justify-center items-center py-10">
+                      <div className="w-8 h-8 border-3 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    </div>
+                  ) : aiAnalysis?.hasResume ? (
+                    <div className="space-y-5">
+                      
+                      {/* Scores Gauges */}
+                      <div className="flex justify-around items-center gap-4 py-2 bg-slate-50/50 rounded-2xl border border-slate-100 p-3">
+                        <div className="text-center">
+                          <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-indigo-50/70 border border-indigo-150">
+                            <span className="text-sm font-extrabold text-indigo-600">{aiAnalysis.analysis.matchScore}%</span>
+                          </div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-2">Match Score</p>
+                        </div>
+                        
+                        <div className="text-center">
+                          <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-emerald-50/70 border border-emerald-150">
+                            <span className="text-sm font-extrabold text-emerald-600">{aiAnalysis.analysis.atsScore}%</span>
+                          </div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-2">ATS Rating</p>
+                        </div>
+                      </div>
+
+                      {/* AI Job Summary */}
+                      <div className="space-y-1.5">
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AI Role Summary</h4>
+                        <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                          {aiAnalysis.analysis.summary}
+                        </p>
+                      </div>
+
+                      {/* Missing Skills */}
+                      <div className="space-y-2">
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Missing Skills ({aiAnalysis.analysis.missingSkills?.length || 0})</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {aiAnalysis.analysis.missingSkills?.map((skill, idx) => (
+                            <span key={idx} className="bg-amber-50 border border-amber-100/50 text-amber-700 px-2.5 py-0.5 rounded-lg text-[10px] font-bold shadow-sm">
+                              {skill}
+                            </span>
+                          ))}
+                          {(!aiAnalysis.analysis.missingSkills || aiAnalysis.analysis.missingSkills.length === 0) && (
+                            <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                              ✓ All keywords matched!
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Skill Gap Analysis */}
+                      <div className="bg-indigo-50/40 border border-indigo-100/60 p-4 rounded-2xl text-[11px] text-indigo-700 leading-relaxed font-medium">
+                        <p className="font-bold mb-1 flex items-center gap-1 text-indigo-800">
+                          💡 Advisor Recommendation
+                        </p>
+                        {aiAnalysis.analysis.skillGapAnalysis}
+                      </div>
+
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                      <p className="text-xs text-slate-500 font-semibold mb-3">Upload your resume to view AI match scores and missing skill insights.</p>
+                      <button onClick={() => navigate("/applications")} className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-5 py-2 rounded-xl cursor-pointer shadow-sm">
+                        Upload Resume
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
 
-            </div>
-
-            {/* More Jobs */}
-            <div className="w-full lg:w-1/3 mt-8 lg:mt-0 lg:ml-8 space-y-5">
-
-              <h2 className="text-lg font-semibold">
-                More Jobs from {JobData.companyId?.name || "Company"}
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span className="w-1.5 h-5 bg-indigo-600 rounded-full"></span>
+                More from {JobData.companyId?.name || "Company"}
               </h2>
 
-              {jobs
-                .filter(
-                  (job) =>
-                    job?._id !== JobData?._id &&
-                    job?.companyId?._id === JobData?.companyId?._id
-                )
-                .filter((job) => {
-                  const appliedJobsIds = new Set(
-                    userApplications.map((app) => app?.jobId?._id)
-                  );
+              <div className="space-y-4">
+                {jobs
+                  .filter(
+                    (job) =>
+                      job?._id !== JobData?._id &&
+                      job?.companyId?._id === JobData?.companyId?._id
+                  )
+                  .filter((job) => {
+                    const appliedJobsIds = new Set(
+                      userApplications.map((app) => app?.jobId?._id)
+                    );
 
-                  return !appliedJobsIds.has(job._id);
-                })
-                .slice(0, 4)
-                .map((job) => (
-                  <JobCard key={job._id} job={job} />
-                ))}
+                    return !appliedJobsIds.has(job._id);
+                  })
+                  .slice(0, 4)
+                  .map((job) => (
+                    <JobCard key={job._id} job={job} />
+                  ))}
+                  {jobs.filter(
+                    (job) =>
+                      job?._id !== JobData?._id &&
+                      job?.companyId?._id === JobData?.companyId?._id
+                  ).filter(job => !userApplications.some(app => app?.jobId?._id === job._id)).length === 0 && (
+                    <p className="text-slate-400 text-sm font-medium py-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                      No other openings available.
+                    </p>
+                  )}
+              </div>
+
+            </div>     
 
             </div>
-
           </div>
         </div>
-      </div>
 
       <Footer />
     </>

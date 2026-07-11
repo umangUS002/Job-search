@@ -1,4 +1,5 @@
 import axios from "axios";
+import { isIndiaJob, isEngineeringAndJuniorJob } from "../utils/parser.js";
 
 export async function scrapeGreenhouse(company) {
 
@@ -8,23 +9,23 @@ export async function scrapeGreenhouse(company) {
 
     const res = await axios.get(`${baseUrl}/jobs`);
 
-    // 🔥 LIMIT to avoid overload (increase later)
-    const limitedJobs = res.data.jobs.slice(0, 20);
+    const allJobs = res.data.jobs || [];
 
-    // ⚡ PARALLEL FETCH (instead of slow loop)
+    // Filter first by location and engineering title to avoid fetching details for irrelevant roles
+    const suitableJobs = allJobs.filter(job => {
+      const location = job.location?.name || "";
+      return isIndiaJob(location) && isEngineeringAndJuniorJob(job.title);
+    });
+
+    console.log(`Greenhouse: ${company} has ${suitableJobs.length} matching engineering/India jobs out of ${allJobs.length} total.`);
+
+    // ⚡ PARALLEL FETCH (only for suitable jobs!)
     const jobs = await Promise.all(
-      limitedJobs.map(async (job) => {
+      suitableJobs.map(async (job) => {
 
         try {
 
           const location = job.location?.name || "";
-
-          // 🇮🇳 INDIA FILTER
-          const isIndia =
-            location.toLowerCase().includes("india") ||
-            location.toLowerCase().includes("remote");
-
-          if (!isIndia) return null;
 
           const detailRes = await axios.get(
             `${baseUrl}/jobs/${job.id}`,
@@ -34,16 +35,15 @@ export async function scrapeGreenhouse(company) {
           const detail = detailRes.data;
 
           return {
-            ...job,
-
-            // keep your existing fields
+            title: job.title,
             description: detail.content || "",
             location: location || "Remote",
-            url: job.absolute_url
+            url: job.absolute_url,
+            companyName: company
           };
 
         } catch (err) {
-          console.log("Failed job:", job.title);
+          console.log(`Failed detail fetch for ${job.title}:`, err.message);
           return null;
         }
 
