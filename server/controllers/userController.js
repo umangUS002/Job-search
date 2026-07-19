@@ -4,7 +4,8 @@ import { v2 as cloudinary } from 'cloudinary';
 import Job from "../models/Job.js";
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
-import Groq from 'groq-sdk';
+import { ChatGroq } from "@langchain/groq";
+import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { parseResumeLocally } from '../utils/localResumeParser.js';
 
 // Get user data
@@ -111,16 +112,14 @@ export const updateUserResume = async(req, res) => {
             let parsedData = null;
             if (resumeText && process.env.GROQ_API_KEY) {
                 try {
-                    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-                    const response = await groq.chat.completions.create({
-                        messages: [
-                            {
-                                role: "system",
-                                content: "You are an expert ATS resume parsing assistant. Parse the resume details accurately. Return ONLY valid JSON matching the specified structure without markdown formatting or backticks."
-                            },
-                            {
-                                role: "user",
-                                content: `Extract the following details from this resume text:
+                    const model = new ChatGroq({
+                        apiKey: process.env.GROQ_API_KEY,
+                        model: "llama-3.3-70b-versatile",
+                        responseFormat: { type: "json_object" }
+                    });
+                    const response = await model.invoke([
+                        new SystemMessage("You are an expert ATS resume parsing assistant. Parse the resume details accurately. Return ONLY valid JSON matching the specified structure without markdown formatting or backticks."),
+                        new HumanMessage(`Extract the following details from this resume text:
 1. skills (array of lowercase tech/programming tools, frameworks, and languages)
 2. projects (array of objects with: title, description)
 3. education (array of objects with: degree, school, year)
@@ -135,14 +134,10 @@ Strictly return ONLY this JSON structure:
 }
 
 Resume Text:
-${resumeText}`
-                            }
-                        ],
-                        model: "llama-3.3-70b-versatile",
-                        response_format: { type: "json_object" }
-                    });
+${resumeText}`)
+                    ]);
 
-                    parsedData = JSON.parse(response.choices[0].message.content);
+                    parsedData = JSON.parse(response.content);
                 } catch (llmErr) {
                     console.log("Groq resume parsing failed:", llmErr.message);
                 }

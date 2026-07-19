@@ -14,6 +14,9 @@
   "dependencies": {
     "@clerk/express": "^1.7.1",
     "@elastic/elasticsearch": "^8.19.1",
+    "@langchain/core": "^1.2.3",
+    "@langchain/groq": "^1.3.1",
+    "@langchain/langgraph": "^1.4.8",
     "@sentry/node": "^9.32.0",
     "@sentry/profiling-node": "^9.32.0",
     "axios": "^1.13.6",
@@ -30,9 +33,8 @@
     "multer": "^2.0.1",
     "node-cron": "^4.2.1",
     "nodemon": "^3.1.10",
+    "pdf-parse": "^1.1.1",
     "playwright": "^1.58.2",
-    "svix": "^1.42.0",
-    "groq-sdk": "^0.15.0",
-    "pdf-parse": "^1.1.1"
+    "svix": "^1.42.0"
   }
 }

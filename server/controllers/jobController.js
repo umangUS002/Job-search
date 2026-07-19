@@ -1,7 +1,8 @@
 import { esClient } from "../configs/elasticSearch.js";
 import Job from "../models/Job.js"
 import User from "../models/User.js"
-import Groq from "groq-sdk"
+import { ChatGroq } from "@langchain/groq";
+import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { analyzeJobLocally } from "../utils/localJobAnalyzer.js"
 
 
@@ -220,7 +221,11 @@ export const analyzeJobMatch = async (req, res) => {
     // Use Groq if key is available
     if (process.env.GROQ_API_KEY) {
       try {
-        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+        const model = new ChatGroq({
+          apiKey: process.env.GROQ_API_KEY,
+          model: "llama-3.3-70b-versatile",
+          responseFormat: { type: "json_object" }
+        });
         const prompt = `
 You are an expert technical recruiter and ATS assistant. Analyze the match between the candidate's parsed resume and the job description.
 
@@ -249,22 +254,12 @@ Strictly return ONLY a valid JSON object matching this structure:
 }
         `;
 
-        const response = await groq.chat.completions.create({
-          messages: [
-            {
-              role: "system",
-              content: "You are a professional AI recruiter returning JSON results. Return ONLY raw JSON, do not wrap in markdown backticks."
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
-          model: "llama-3.3-70b-versatile",
-          response_format: { type: "json_object" }
-        });
+        const response = await model.invoke([
+          new SystemMessage("You are a professional AI recruiter returning JSON results. Return ONLY raw JSON, do not wrap in markdown backticks."),
+          new HumanMessage(prompt)
+        ]);
 
-        analysis = JSON.parse(response.choices[0].message.content);
+        analysis = JSON.parse(response.content);
       } catch (err) {
         console.log("Groq job analysis failed:", err.message);
       }
@@ -279,6 +274,70 @@ Strictly return ONLY a valid JSON object matching this structure:
     res.json({ success: true, hasResume: true, analysis });
 
   } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Generate tailored cover letter using LangChain ChatGroq
+export const generateCoverLetter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = await req.auth();
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized. Please login." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user || !user.resume || !user.resumeData) {
+      return res.json({ success: false, message: "Please upload your resume first." });
+    }
+
+    const job = await Job.findById(id).populate("companyId", "name");
+    if (!job) {
+      return res.json({ success: false, message: "Job not found." });
+    }
+
+    if (!process.env.GROQ_API_KEY) {
+      return res.json({ success: false, message: "Groq API key not configured on server." });
+    }
+
+    const model = new ChatGroq({
+      apiKey: process.env.GROQ_API_KEY,
+      model: "llama-3.3-70b-versatile"
+    });
+
+    const prompt = `
+You are an expert career consultant and technical writer. Write a professional, highly tailored cover letter for the candidate applying to the specified job role.
+
+Candidate Name: ${user.name}
+Candidate Email: ${user.email}
+
+Candidate Resume Details:
+${JSON.stringify(user.resumeData)}
+
+Job Details:
+Title: ${job.title}
+Company: ${job.companyId?.name || "Company"}
+Description: ${job.description}
+
+Write a cover letter that is:
+1. Formatted in clean markdown (MD).
+2. Keeps to 3-4 paragraphs.
+3. Highlights matching projects, skills, and experiences directly relevant to the job.
+4. Professional, encouraging, and clear.
+5. Do NOT include placeholders (e.g. [Date] or [Company Address]) that look generic. Format it directly as a ready-to-use letter.
+`;
+
+    const response = await model.invoke([
+      new SystemMessage("You are an expert career advisor. Write a professional, highly tailored cover letter in clean markdown without any conversational intro/outro or placeholder details."),
+      new HumanMessage(prompt)
+    ]);
+
+    res.json({ success: true, coverLetter: response.content });
+
+  } catch (error) {
+    console.error("Cover letter generation error:", error.message);
     res.json({ success: false, message: error.message });
   }
 };

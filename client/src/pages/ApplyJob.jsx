@@ -7,6 +7,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import JobCard from "../components/JobCard";
 import { assets } from "../assets/assets";
+import MockInterviewModal from "../components/MockInterviewModal";
+import CoverLetterModal from "../components/CoverLetterModal";
 
 import kconvert from "k-convert";
 import moment from "moment";
@@ -27,6 +29,8 @@ function ApplyJob() {
   const [isAlreadyApplied, setIsAlreadyApplied] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [showMockInterview, setShowMockInterview] = useState(false);
+  const [showCoverLetter, setShowCoverLetter] = useState(false);
 
   const {
     jobs,
@@ -345,6 +349,21 @@ function ApplyJob() {
                         {aiAnalysis.analysis.skillGapAnalysis}
                       </div>
 
+                      <div className="pt-2 border-t border-slate-100 mt-2 flex flex-col gap-2">
+                        <button
+                          onClick={() => setShowMockInterview(true)}
+                          className="w-full bg-gradient-to-r from-indigo-600 to-indigo-550 hover:from-indigo-550 hover:to-indigo-500 text-white font-bold text-xs py-3 rounded-xl shadow-sm cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
+                        >
+                          🎙️ Practice Mock Interview
+                        </button>
+                        <button
+                          onClick={() => setShowCoverLetter(true)}
+                          className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs py-3 rounded-xl shadow-sm cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
+                        >
+                          ✉️ Generate Cover Letter
+                        </button>
+                      </div>
+
                     </div>
                   ) : (
                     <div className="text-center py-6 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
@@ -398,6 +417,24 @@ function ApplyJob() {
         </div>
 
       <Footer />
+
+      {showMockInterview && (
+        <MockInterviewModal
+          jobId={JobData._id}
+          jobTitle={JobData.title}
+          companyName={JobData.companyId?.name}
+          onClose={() => setShowMockInterview(false)}
+        />
+      )}
+
+      {showCoverLetter && (
+        <CoverLetterModal
+          jobId={JobData._id}
+          jobTitle={JobData.title}
+          companyName={JobData.companyId?.name}
+          onClose={() => setShowCoverLetter(false)}
+        />
+      )}
     </>
   );
 }

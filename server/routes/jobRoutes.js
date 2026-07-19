@@ -1,5 +1,5 @@
 import express from 'express';
-import { filterJobs, getJobById, getJobs, saveScrapedJobs, searchJobsES, analyzeJobMatch } from '../controllers/jobController.js';
+import { filterJobs, getJobById, getJobs, saveScrapedJobs, searchJobsES, analyzeJobMatch, generateCoverLetter } from '../controllers/jobController.js';
 
 const jobRouter = express.Router();
 
@@ -8,6 +8,7 @@ jobRouter.get("/filter", filterJobs);
 
 jobRouter.get('/:id', getJobById);
 jobRouter.get('/:id/analyze', analyzeJobMatch);
+jobRouter.get('/:id/cover-letter', generateCoverLetter);
 
 //scraped jobs
 jobRouter.post("/scraped", saveScrapedJobs);

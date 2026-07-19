@@ -9,6 +9,7 @@ import router from './routes/companyRoutes.js';
 import connectCloudinary from './configs/cloudinary.js';
 import jobRouter from './routes/jobRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import interviewRouter from './routes/interviewRoutes.js';
 import { clerkMiddleware } from '@clerk/express';
 
 import "./workers/scrapeWorker.js";   // 🔥 starts worker
@@ -38,6 +39,7 @@ app.post('/webhooks', clerkWebhooks)
 app.use('/api/company', router);
 app.use('/api/jobs', jobRouter);
 app.use('/api/users', userRouter);
+app.use('/api/interviews', interviewRouter);
 
 // Port
 const PORT = process.env.PORT || 5000;

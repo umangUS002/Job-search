@@ -1,10 +1,10 @@
-import React, { useContext, useEffect } from 'react'
-import { useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { assets } from '../assets/assets';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import gsap from 'gsap';
 
 function RecruiterLogin() {
 
