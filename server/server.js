@@ -11,6 +11,7 @@ import jobRouter from './routes/jobRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import interviewRouter from './routes/interviewRoutes.js';
 import { clerkMiddleware } from '@clerk/express';
+import { createAndSyncIndex } from './scripts/createIndex.js';
 
 import "./workers/scrapeWorker.js";   // 🔥 starts worker
 import "./scheduler/jobScheduler.js";
@@ -21,6 +22,13 @@ const app = express();
 // Connect to DB
 await connectDB();
 await connectCloudinary();
+
+// Init Elasticsearch Index & Sync
+try {
+    await createAndSyncIndex();
+} catch (esInitErr) {
+    console.log("⚠️ Elasticsearch initialization failed:", esInitErr.message);
+}
 
 // Middlewares
 app.use(cors())

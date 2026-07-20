@@ -111,3 +111,38 @@
 .rich-text li{
   margin-bottom: 8px;
 }
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html.dark {
+    background-color: #070a13;
+    color: #f1f5f9;
+  }
+  
+  /* Smooth color transitions for elements */
+  body, div, header, nav, section, table, tr, td, th, input, select, textarea, button, p, h1, h2, h3, h4, h5, h6 {
+    transition-property: background-color, border-color, text-color, fill, stroke;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Glassmorphism updates for Dark Mode */
+.dark .glassmorphism {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .rich-text h1,
+.dark .rich-text h2,
+.dark .rich-text h3,
+.dark .rich-text h4 {
+  color: #f1f5f9;
+}
+
+.dark .rich-text {
+  color: #94a3b8;
+}

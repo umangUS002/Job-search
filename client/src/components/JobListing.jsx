@@ -100,14 +100,14 @@ function JobListing() {
     <div className='container mx-auto px-4 sm:px-12 md:px-20 py-16'>
 
       {/* 🔍 FILTER BAR */}
-      <div className='bg-white border border-slate-100 shadow-sm p-4 rounded-2xl flex flex-col md:flex-row gap-3 mb-12 items-center'>
+      <div className='bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 rounded-2xl flex flex-col md:flex-row gap-3 mb-12 items-center'>
         
         <div className='w-full relative'>
           <input
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="Search keywords..."
-            className='border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none p-3 px-4 rounded-xl w-full text-sm text-slate-700 transition-colors duration-200'
+            className='border border-slate-200 dark:border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none p-3 px-4 rounded-xl w-full text-sm text-slate-700 dark:text-slate-200 dark:bg-slate-950/40 transition-colors duration-200'
           />
         </div>
 
@@ -116,7 +116,7 @@ function JobListing() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Location..."
-            className='border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none p-3 px-4 rounded-xl w-full text-sm text-slate-700 transition-colors duration-200'
+            className='border border-slate-200 dark:border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none p-3 px-4 rounded-xl w-full text-sm text-slate-700 dark:text-slate-200 dark:bg-slate-950/40 transition-colors duration-200'
           />
         </div>
 
@@ -125,7 +125,7 @@ function JobListing() {
             value={skill}
             onChange={(e) => setSkill(e.target.value)}
             placeholder="Skill (React, Node, etc)..."
-            className='border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none p-3 px-4 rounded-xl w-full text-sm text-slate-700 transition-colors duration-200'
+            className='border border-slate-200 dark:border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none p-3 px-4 rounded-xl w-full text-sm text-slate-700 dark:text-slate-200 dark:bg-slate-950/40 transition-colors duration-200'
           />
         </div>
 
@@ -140,10 +140,10 @@ function JobListing() {
 
       {/* RESULTS */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h3 className='text-2xl font-bold text-slate-800'>Latest Opportunities</h3>
+        <h3 className='text-2xl font-bold text-slate-800 dark:text-slate-105'>Latest Opportunities</h3>
         
         {userData?.resume && isSignedIn && (
-          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <div className="flex bg-slate-100 dark:bg-slate-950/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => {
                 setSearchMode("all");
@@ -151,8 +151,8 @@ function JobListing() {
               }}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
                 searchMode === "all"
-                  ? "bg-white text-slate-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-250"
               }`}
             >
               All Jobs
@@ -165,7 +165,7 @@ function JobListing() {
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
                 searchMode === "resume"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-250"
               }`}
             >
               ✨ Match My Resume
@@ -190,17 +190,17 @@ function JobListing() {
             ))}
 
             {!isSignedIn && (
-              <div className="job-card border border-dashed border-indigo-200 p-6 bg-gradient-to-br from-indigo-50/15 to-white hover:border-indigo-350 shadow-sm hover:shadow-md rounded-2xl flex flex-col justify-between h-full text-center py-10 relative overflow-hidden group transition-all duration-300">
+              <div className="job-card border border-dashed border-indigo-200 dark:border-indigo-900/50 p-6 bg-gradient-to-br from-indigo-50/15 to-white dark:from-indigo-950/10 dark:to-slate-900/30 hover:border-indigo-350 dark:hover:border-indigo-500/40 shadow-sm hover:shadow-md rounded-2xl flex flex-col justify-between h-full text-center py-10 relative overflow-hidden group transition-all duration-300">
                 <div className="absolute -top-10 -right-10 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
                 <div className="flex flex-col items-center">
                   <span className="text-3xl mb-3">🔒</span>
-                  <h4 className="font-extrabold text-base text-slate-800 tracking-tight">Unlock 100+ Opportunities</h4>
-                  <p className="text-slate-500 text-xs mt-2.5 leading-relaxed px-4">
+                  <h4 className="font-extrabold text-base text-slate-800 dark:text-slate-100 tracking-tight">Unlock 100+ Opportunities</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-2.5 leading-relaxed px-4">
                     Sign in to access all available engineering listings and unlock AI resume match suitability insights.
                   </p>
                 </div>
                 
-                <div className="mt-8 pt-4 border-t border-slate-50 w-full">
+                <div className="mt-8 pt-4 border-t border-slate-50 dark:border-slate-800/80 w-full">
                   <button
                     onClick={() => {
                       scrollTo({ top: 0, behavior: 'smooth' });

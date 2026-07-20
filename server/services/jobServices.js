@@ -116,8 +116,8 @@ export const saveJobs = async (companySlug, jobs) => {
           document: {
             title: job.title,
             description: job.description || "",
-            location: job.location?.name || job.location,
-            company: companySlug,
+            location: job.location?.name || job.location || "Remote",
+            company: job.companyName || companySlug,
             skills: extractSkills(job.description),
             level: detectLevel(job.title)
           }

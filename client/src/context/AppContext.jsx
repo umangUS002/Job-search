@@ -29,6 +29,17 @@ export const AppContextProvider = (props) => {
     const [userData, setUserData] = useState(null)
     const [userApplications, setUserApplications] = useState([])
 
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
     // Function to fetch jobs
     const fetchJobs = async() => {
 
@@ -138,7 +149,8 @@ export const AppContextProvider = (props) => {
         jobs, setJobs, setShowRecruiterLogin, showRecruiterLogin,
         companyToken, setCompanyToken, companyData, setCompanyData,
         backendUrl, userData, setUserData, userApplications, setUserApplications,
-        fetchUserData, fetchUserApplications
+        fetchUserData, fetchUserApplications,
+        theme, setTheme
     }
     
     return (

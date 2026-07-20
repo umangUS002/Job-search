@@ -141,45 +141,45 @@ function ApplyJob() {
       <div className="min-h-screen flex flex-col py-10 container px-4 2xl:px-20 mx-auto">
 
         {/* Job Header */}
-        <div className="bg-white text-black rounded-lg w-full">
+        <div className="bg-white dark:bg-transparent text-black dark:text-white rounded-lg w-full">
 
-          <div className="flex justify-center md:justify-between flex-wrap gap-8 px-6 sm:px-12 py-14 mb-8 bg-indigo-50/40 border border-indigo-100/60 rounded-3xl shadow-sm">
+          <div className="flex justify-center md:justify-between flex-wrap gap-8 px-6 sm:px-12 py-14 mb-8 bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-100/60 dark:border-indigo-900/50 rounded-3xl shadow-sm">
 
             <div className="flex flex-col md:flex-row items-center gap-5">
 
-              <div className="w-16 h-16 flex items-center justify-center bg-white border border-slate-100 rounded-2xl p-2 shadow-sm">
+              <div className="w-16 h-16 flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-855 rounded-2xl p-2 shadow-sm">
                 <img
-                  className="max-h-full max-w-full object-contain"
+                  className="max-h-full max-w-full object-contain dark:brightness-95"
                   src={JobData.companyId?.image || "/company.png"}
                   alt="company"
                 />
               </div>
 
-              <div className="text-center md:text-left text-slate-700">
+              <div className="text-center md:text-left text-slate-700 dark:text-slate-300">
 
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-850 tracking-tight">
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-855 dark:text-slate-100 tracking-tight">
                   {JobData.title}
                 </h1>
 
-                <div className="flex flex-row flex-wrap max-md:justify-center gap-y-2.5 gap-6 items-center text-slate-500 mt-3 text-xs sm:text-sm font-medium">
+                <div className="flex flex-row flex-wrap max-md:justify-center gap-y-2.5 gap-6 items-center text-slate-500 dark:text-slate-400 mt-3 text-xs sm:text-sm font-medium">
 
                   <span className="flex items-center gap-1.5">
-                    <img className="h-4 opacity-60" src={assets.suitcase_icon} alt="" />
+                    <img className="h-4 opacity-60 dark:invert" src={assets.suitcase_icon} alt="" />
                     {JobData.companyId?.name || "Company Name"}
                   </span>
 
                   <span className="flex items-center gap-1.5">
-                    <img className="h-4 opacity-60" src={assets.location_icon} alt="" />
+                    <img className="h-4 opacity-60 dark:invert" src={assets.location_icon} alt="" />
                     {JobData.location || "Remote"}
                   </span>
 
                   <span className="flex items-center gap-1.5">
-                    <img className="h-4 opacity-60" src={assets.person_icon} alt="" />
+                    <img className="h-4 opacity-60 dark:invert" src={assets.person_icon} alt="" />
                     {JobData.level || "Not specified"}
                   </span>
 
-                  <span className="flex items-center gap-1.5 text-indigo-600 font-bold">
-                    <img className="h-4 opacity-75" src={assets.money_icon} alt="" />
+                  <span className="flex items-center gap-1.5 text-indigo-650 dark:text-indigo-400 font-bold">
+                    <img className="h-4 opacity-75 dark:invert" src={assets.money_icon} alt="" />
                     CTC:{" "}
                     {JobData.salary
                       ? kconvert.convertTo(JobData.salary)
@@ -192,7 +192,7 @@ function ApplyJob() {
                   {JobData.skills?.map((skill, i) => (
                     <span
                       key={i}
-                      className="bg-indigo-50/70 border border-indigo-100/50 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-600"
+                      className="bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100/50 dark:border-indigo-900/50 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-400"
                     >
                       {skill}
                     </span>
@@ -228,7 +228,7 @@ function ApplyJob() {
                 </button>
               )}
 
-              <p className="mt-2 text-slate-400 text-xs font-medium">
+              <p className="mt-2 text-slate-400 dark:text-slate-500 text-xs font-medium">
                 Posted{" "}
                 {JobData.date
                   ? moment(JobData.date).fromNow()
@@ -237,20 +237,20 @@ function ApplyJob() {
 
             </div>
           </div>
-               {/* Main Content */}
+          {/* Main Content */}
           <div className="flex flex-col lg:flex-row justify-between items-start gap-10">
 
             {/* Job Description */}
-            <div className="w-full lg:w-2/3 bg-white border border-slate-100 p-6 sm:p-8 rounded-3xl shadow-sm">
-              <h2 className="font-extrabold text-2xl text-slate-800 mb-6 pb-3 border-b border-slate-100">Job Description</h2>
+            <div className="w-full lg:w-2/3 bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 p-6 sm:p-8 rounded-3xl shadow-sm">
+              <h2 className="font-extrabold text-2xl text-slate-800 dark:text-slate-100 mb-6 pb-3 border-b border-slate-100 dark:border-slate-800/80">Job Description</h2>
 
-              <div className="prose max-w-none text-slate-650 leading-relaxed rich-text">
+              <div className="prose max-w-none text-slate-650 dark:text-slate-300 leading-relaxed rich-text">
                 {JobData.description
                   ? parse(he.decode(JobData.description))
                   : "No description available"}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-slate-100">
+              <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/80">
                 {JobData.url?.startsWith("http") ? (
                   // 🔗 Scraped job → external apply
                   <a
@@ -284,42 +284,42 @@ function ApplyJob() {
 
               {/* AI Resume Match Insights (Authenticated only) */}
               {isSignedIn && (
-                <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm space-y-6 relative overflow-hidden">
+                <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 p-6 rounded-3xl shadow-sm space-y-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
                   
-                  <h3 className="font-extrabold text-lg text-slate-850 flex items-center gap-2">
-                    <span className="inline-block p-1 bg-indigo-50 text-indigo-600 rounded-lg text-sm">✨</span>
+                  <h3 className="font-extrabold text-lg text-slate-855 dark:text-slate-100 flex items-center gap-2">
+                    <span className="inline-block p-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-sm">✨</span>
                     AI Resume Insights
                   </h3>
 
                   {aiLoading ? (
                     <div className="flex justify-center items-center py-10">
-                      <div className="w-8 h-8 border-3 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                      <div className="w-8 h-8 border-3 border-slate-200 dark:border-slate-700 border-t-indigo-600 rounded-full animate-spin"></div>
                     </div>
                   ) : aiAnalysis?.hasResume ? (
                     <div className="space-y-5">
                       
                       {/* Scores Gauges */}
-                      <div className="flex justify-around items-center gap-4 py-2 bg-slate-50/50 rounded-2xl border border-slate-100 p-3">
+                      <div className="flex justify-around items-center gap-4 py-2 bg-slate-50/55 dark:bg-slate-950/20 rounded-2xl border border-slate-100 dark:border-slate-800/80 p-3">
                         <div className="text-center">
-                          <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-indigo-50/70 border border-indigo-150">
-                            <span className="text-sm font-extrabold text-indigo-600">{aiAnalysis.analysis.matchScore}%</span>
+                          <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-150 dark:border-indigo-900/50">
+                            <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400">{aiAnalysis.analysis.matchScore}%</span>
                           </div>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-2">Match Score</p>
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider mt-2">Match Score</p>
                         </div>
                         
                         <div className="text-center">
-                          <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-emerald-50/70 border border-emerald-150">
-                            <span className="text-sm font-extrabold text-emerald-600">{aiAnalysis.analysis.atsScore}%</span>
+                          <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-150 dark:border-emerald-900/50">
+                            <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">{aiAnalysis.analysis.atsScore}%</span>
                           </div>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-2">ATS Rating</p>
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider mt-2">ATS Rating</p>
                         </div>
                       </div>
 
                       {/* AI Job Summary */}
                       <div className="space-y-1.5">
                         <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AI Role Summary</h4>
-                        <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                        <p className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed font-medium">
                           {aiAnalysis.analysis.summary}
                         </p>
                       </div>
@@ -329,12 +329,12 @@ function ApplyJob() {
                         <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Missing Skills ({aiAnalysis.analysis.missingSkills?.length || 0})</h4>
                         <div className="flex flex-wrap gap-1.5">
                           {aiAnalysis.analysis.missingSkills?.map((skill, idx) => (
-                            <span key={idx} className="bg-amber-50 border border-amber-100/50 text-amber-700 px-2.5 py-0.5 rounded-lg text-[10px] font-bold shadow-sm">
+                            <span key={idx} className="bg-amber-50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/40 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-lg text-[10px] font-bold shadow-sm">
                               {skill}
                             </span>
                           ))}
                           {(!aiAnalysis.analysis.missingSkills || aiAnalysis.analysis.missingSkills.length === 0) && (
-                            <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                            <p className="text-[11px] text-emerald-650 dark:text-emerald-400 font-semibold flex items-center gap-1">
                               ✓ All keywords matched!
                             </p>
                           )}
@@ -342,14 +342,14 @@ function ApplyJob() {
                       </div>
 
                       {/* Skill Gap Analysis */}
-                      <div className="bg-indigo-50/40 border border-indigo-100/60 p-4 rounded-2xl text-[11px] text-indigo-700 leading-relaxed font-medium">
-                        <p className="font-bold mb-1 flex items-center gap-1 text-indigo-800">
+                      <div className="bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-100/60 dark:border-indigo-900/50 p-4 rounded-2xl text-[11px] text-indigo-750 dark:text-indigo-350 leading-relaxed font-medium">
+                        <p className="font-bold mb-1 flex items-center gap-1 text-indigo-800 dark:text-indigo-400">
                           💡 Advisor Recommendation
                         </p>
                         {aiAnalysis.analysis.skillGapAnalysis}
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 mt-2 flex flex-col gap-2">
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 mt-2 flex flex-col gap-2">
                         <button
                           onClick={() => setShowMockInterview(true)}
                           className="w-full bg-gradient-to-r from-indigo-600 to-indigo-550 hover:from-indigo-550 hover:to-indigo-500 text-white font-bold text-xs py-3 rounded-xl shadow-sm cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
@@ -358,7 +358,7 @@ function ApplyJob() {
                         </button>
                         <button
                           onClick={() => setShowCoverLetter(true)}
-                          className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs py-3 rounded-xl shadow-sm cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
+                          className="w-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl shadow-sm cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
                         >
                           ✉️ Generate Cover Letter
                         </button>
@@ -366,8 +366,8 @@ function ApplyJob() {
 
                     </div>
                   ) : (
-                    <div className="text-center py-6 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                      <p className="text-xs text-slate-500 font-semibold mb-3">Upload your resume to view AI match scores and missing skill insights.</p>
+                    <div className="text-center py-6 px-4 bg-slate-50 dark:bg-slate-950/10 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                      <p className="text-xs text-slate-505 dark:text-slate-400 font-semibold mb-3">Upload your resume to view AI match scores and missing skill insights.</p>
                       <button onClick={() => navigate("/applications")} className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-5 py-2 rounded-xl cursor-pointer shadow-sm">
                         Upload Resume
                       </button>
@@ -376,7 +376,7 @@ function ApplyJob() {
                 </div>
               )}
 
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-855 dark:text-slate-100 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-indigo-600 rounded-full"></span>
                 More from {JobData.companyId?.name || "Company"}
               </h2>
@@ -404,7 +404,7 @@ function ApplyJob() {
                       job?._id !== JobData?._id &&
                       job?.companyId?._id === JobData?.companyId?._id
                   ).filter(job => !userApplications.some(app => app?.jobId?._id === job._id)).length === 0 && (
-                    <p className="text-slate-400 text-sm font-medium py-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <p className="text-slate-400 dark:text-slate-500 text-sm font-medium py-6 text-center bg-slate-50 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-850">
                       No other openings available.
                     </p>
                   )}

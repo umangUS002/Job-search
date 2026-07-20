@@ -9,10 +9,10 @@ services:
     environment:
       - MONGO_URI=${MONGODB_URI}
       - REDIS_HOST=redis
-      # - ELASTIC_URL=http://elasticsearch:9200
+      - ELASTIC_URL=http://elasticsearch:9200
     depends_on:
       - redis
-      # - elasticsearch
+      - elasticsearch
 
   worker:
     build:
@@ -22,10 +22,10 @@ services:
     environment:
       - MONGO_URI=${MONGODB_URI}
       - REDIS_HOST=redis
-      # - ELASTIC_URL=http://elasticsearch:9200
+      - ELASTIC_URL=http://elasticsearch:9200
     depends_on:
       - redis
-      # - elasticsearch
+      - elasticsearch
 
   client:
     build: ./client
@@ -37,10 +37,10 @@ services:
     ports:
       - "6380:6379"
 
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
-  #   environment:
-  #     - discovery.type=single-node
-  #     - xpack.security.enabled=false
-  #   ports:
-  #     - "9200:9200"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9201:9200"

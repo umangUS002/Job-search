@@ -74,30 +74,106 @@ export const filterJobs = async (req, res) => {
     const { keyword, location, skill, resumeMatch } = req.query;
     const { userId } = await req.auth();
 
-    let query = {};
+    let jobs = [];
+    let isEsSuccessful = false;
 
-    // 🔍 keyword search
-    if (keyword) {
-      query.$or = [
-        { title: { $regex: keyword, $options: "i" } },
-        { company: { $regex: keyword, $options: "i" } },
-        { skills: { $regex: keyword, $options: "i" } }
-      ];
+    // Check if we should use ES (if ES parameters are active)
+    if (keyword || location || skill) {
+      try {
+        let must = [];
+        if (keyword) {
+          must.push({
+            multi_match: {
+              query: keyword,
+              fields: ["title^2", "description"],
+              fuzziness: "AUTO"
+            }
+          });
+        }
+        if (location) {
+          must.push({
+            match: {
+              location: {
+                query: location,
+                fuzziness: "AUTO"
+              }
+            }
+          });
+        }
+        if (skill) {
+          must.push({
+            match: {
+              skills: {
+                query: skill,
+                fuzziness: "AUTO"
+              }
+            }
+          });
+        }
+
+        const response = await esClient.search({
+          index: "jobs",
+          query: {
+            bool: { must }
+          },
+          size: 50
+        });
+
+        const hits = response.hits.hits;
+        const identifiers = hits.map(hit => hit._id);
+
+        if (identifiers.length > 0) {
+          // Fetch from MongoDB matching these ids or urls
+          const mongoJobs = await Job.find({
+            $or: [
+              { url: { $in: identifiers } },
+              { _id: { $in: identifiers.filter(id => id.match(/^[0-9a-fA-F]{24}$/)) } }
+            ]
+          }).populate("companyId");
+
+          // Sort Mongoose jobs according to the rank order returned by Elasticsearch
+          const jobMap = new Map();
+          mongoJobs.forEach(job => {
+            if (job.url) jobMap.set(job.url, job);
+            jobMap.set(job._id.toString(), job);
+          });
+
+          jobs = identifiers
+            .map(id => jobMap.get(id))
+            .filter(Boolean); // remove nulls
+          
+          isEsSuccessful = true;
+          console.log(`🔍 ES search returned ${jobs.length} fuzzy matched jobs`);
+        } else {
+          jobs = [];
+          isEsSuccessful = true;
+        }
+      } catch (esErr) {
+        console.warn("⚠️ ES search failed, falling back to MongoDB regex search:", esErr.message);
+      }
     }
 
-    // 📍 location
-    if (location) {
-      query.location = { $regex: location, $options: "i" };
-    }
+    // Fallback to MongoDB regex search if ES not used or failed
+    if (!isEsSuccessful) {
+      let query = {};
+      if (keyword) {
+        query.$or = [
+          { title: { $regex: keyword, $options: "i" } },
+          { company: { $regex: keyword, $options: "i" } },
+          { skills: { $regex: keyword, $options: "i" } }
+        ];
+      }
+      if (location) {
+        query.location = { $regex: location, $options: "i" };
+      }
+      if (skill) {
+        query.skills = { $regex: skill, $options: "i" };
+      }
 
-    // 🧠 skill filter
-    if (skill) {
-      query.skills = { $regex: skill, $options: "i" };
+      jobs = await Job.find(query)
+        .populate("companyId")
+        .sort({ createdAt: -1 });
     }
-
-    let jobs = await Job.find(query)
-      .populate("companyId")
-      .sort({ createdAt: -1 });
 
     // Handle Resume Specific Search Sorting & Filtering
     if (resumeMatch === "true" && userId) {
