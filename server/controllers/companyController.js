@@ -4,7 +4,6 @@ import { v2 as cloudinary } from 'cloudinary';
 import generateToken from "../utils/generateToken.js";
 import Job from "../models/Job.js";
 import JobApplication from "../models/JobApplications.js";
-import { esClient } from "../configs/elasticSearch.js";
 import { extractSkills } from "../utils/extractSkills.js";
 
 // Register a new company
@@ -116,26 +115,6 @@ export const postJob = async(req, res) => {
         })
 
         await newJob.save()
-
-        // Index in Elasticsearch
-        try {
-            await esClient.index({
-                index: "jobs",
-                id: newJob._id.toString(),
-                document: {
-                    title: newJob.title,
-                    description: newJob.description || "",
-                    location: newJob.location,
-                    company: req.company.name,
-                    skills: extractSkills(newJob.description),
-                    level: newJob.level
-                }
-            });
-            await esClient.indices.refresh({ index: "jobs" });
-            console.log("Job indexed in ES:", newJob._id);
-        } catch (esErr) {
-            console.log("ES postJob indexing error:", esErr.message);
-        }
 
         res.json({success: true, newJob});
     } catch (error) {

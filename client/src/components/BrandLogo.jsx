@@ -64,7 +64,7 @@ function BrandLogo({ onClick, className = '' }) {
 
       {/* Brand Typography */}
       <span className="text-2xl font-extrabold tracking-tight logo-anim flex items-center">
-        <span className="bg-gradient-to-r from-slate-900 to-indigo-900 bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-slate-100 dark:to-indigo-200 bg-clip-text text-transparent">
           Apex
         </span>
         <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent ml-0.5">

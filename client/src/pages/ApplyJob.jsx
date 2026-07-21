@@ -132,6 +132,35 @@ function ApplyJob() {
     }
   }, [JobData, userApplications]);
 
+  const recommendedJobs = (() => {
+    if (!JobData || !jobs || jobs.length === 0) return [];
+    
+    const appliedJobsIds = new Set(
+      userApplications.map((app) => app?.jobId?._id)
+    );
+
+    const candidates = jobs
+      .filter((job) => job?._id !== JobData?._id)
+      .filter((job) => !appliedJobsIds.has(job._id));
+
+    const scored = candidates.map((job) => {
+      let score = 0;
+      if (job.companyId?._id === JobData.companyId?._id) score += 4;
+      if (job.level && JobData.level && job.level.toLowerCase() === JobData.level.toLowerCase()) score += 2;
+      if (job.location && JobData.location && job.location.toLowerCase() === JobData.location.toLowerCase()) score += 1;
+      if (job.skills && JobData.skills) {
+        const shared = job.skills.filter(s => JobData.skills.includes(s));
+        score += shared.length;
+      }
+      return { job, score };
+    });
+
+    // Sort descending by score
+    scored.sort((a, b) => b.score - a.score);
+
+    return scored.slice(0, 4).map(item => item.job);
+  })();
+
   if (!JobData) return <Loading />;
 
   return (
@@ -378,36 +407,18 @@ function ApplyJob() {
 
               <h2 className="text-lg font-bold text-slate-855 dark:text-slate-100 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-indigo-600 rounded-full"></span>
-                More from {JobData.companyId?.name || "Company"}
+                Recommended Jobs
               </h2>
 
               <div className="space-y-4">
-                {jobs
-                  .filter(
-                    (job) =>
-                      job?._id !== JobData?._id &&
-                      job?.companyId?._id === JobData?.companyId?._id
-                  )
-                  .filter((job) => {
-                    const appliedJobsIds = new Set(
-                      userApplications.map((app) => app?.jobId?._id)
-                    );
-
-                    return !appliedJobsIds.has(job._id);
-                  })
-                  .slice(0, 4)
-                  .map((job) => (
-                    <JobCard key={job._id} job={job} />
-                  ))}
-                  {jobs.filter(
-                    (job) =>
-                      job?._id !== JobData?._id &&
-                      job?.companyId?._id === JobData?.companyId?._id
-                  ).filter(job => !userApplications.some(app => app?.jobId?._id === job._id)).length === 0 && (
-                    <p className="text-slate-400 dark:text-slate-500 text-sm font-medium py-6 text-center bg-slate-50 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-850">
-                      No other openings available.
-                    </p>
-                  )}
+                {recommendedJobs.map((job) => (
+                  <JobCard key={job._id} job={job} />
+                ))}
+                {recommendedJobs.length === 0 && (
+                  <p className="text-slate-400 dark:text-slate-500 text-sm font-medium py-6 text-center bg-slate-50 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-850">
+                    No recommendations available.
+                  </p>
+                )}
               </div>
 
             </div>     

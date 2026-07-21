@@ -4,6 +4,22 @@ import Job from "../models/Job.js";
 
 export async function createAndSyncIndex() {
   try {
+    let isReady = false;
+    for (let attempt = 1; attempt <= 15; attempt++) {
+      try {
+        await esClient.ping();
+        isReady = true;
+        break;
+      } catch (pingErr) {
+        console.log(`⏳ Waiting for Elasticsearch to start... (Attempt ${attempt}/15)`);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    }
+
+    if (!isReady) {
+      throw new Error("Could not connect to Elasticsearch after 15 attempts.");
+    }
+
     const exists = await esClient.indices.exists({ index: "jobs" });
 
     if (!exists) {

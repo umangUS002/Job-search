@@ -3,32 +3,44 @@ services:
 
   server:
     build: ./server
+    command: npm run test
+    volumes:
+      - ./server:/app
+      - /app/node_modules
     env_file: ./server/.env
     ports:
       - "5000:5000"
     environment:
       - MONGO_URI=${MONGODB_URI}
       - REDIS_HOST=redis
-      - ELASTIC_URL=http://elasticsearch:9200
+      - REDIS_PORT=6379
     depends_on:
-      - redis
-      - elasticsearch
+      redis:
+        condition: service_started
 
   worker:
     build:
       context: ./server
       dockerfile: Dockerfile.worker
+    command: npx nodemon scripts/startWorkers.js
+    volumes:
+      - ./server:/app
+      - /app/node_modules
     env_file: ./server/.env
     environment:
       - MONGO_URI=${MONGODB_URI}
       - REDIS_HOST=redis
-      - ELASTIC_URL=http://elasticsearch:9200
+      - REDIS_PORT=6379
     depends_on:
-      - redis
-      - elasticsearch
+      redis:
+        condition: service_started
 
   client:
     build: ./client
+    command: npm run dev -- --host
+    volumes:
+      - ./client:/app
+      - /app/node_modules
     ports:
       - "5173:5173"
 
@@ -36,11 +48,3 @@ services:
     image: redis:7
     ports:
       - "6380:6379"
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - "9201:9200"

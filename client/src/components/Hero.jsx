@@ -26,12 +26,6 @@ function Hero() {
             { opacity: 0, y: 35 },
             { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power4.out' }
         );
-        // Stagger in trusted logos
-        tl.fromTo(heroRef.current.querySelectorAll('.partner-logo'),
-            { opacity: 0, y: 15, scale: 0.9 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.08, ease: 'back.out(1.4)' },
-            '-=0.4'
-        );
     }, []);
 
   return (
@@ -82,20 +76,6 @@ function Hero() {
           </button>
         </div>
       </div>
-
-      {/* Trusted By Section */}
-      <div className='border border-slate-100 bg-white/50 backdrop-blur-md shadow-sm mx-1 mt-8 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 lg:gap-16'>
-        <p className='font-semibold text-slate-400 text-sm uppercase tracking-wider max-md:mb-2'>Trusted By Leaders:</p>
-        <div className='flex justify-center gap-8 lg:gap-14 flex-wrap items-center'>
-            <img className='partner-logo h-6 opacity-45 hover:opacity-100 transition-opacity duration-200 object-contain' src={assets.microsoft_logo} alt="Microsoft" />
-            <img className='partner-logo h-6 opacity-45 hover:opacity-100 transition-opacity duration-200 object-contain' src={assets.walmart_logo} alt="Walmart" />
-            <img className='partner-logo h-6 opacity-45 hover:opacity-100 transition-opacity duration-200 object-contain' src={assets.accenture_logo} alt="Accenture" />
-            <img className='partner-logo h-6 opacity-45 hover:opacity-100 transition-opacity duration-200 object-contain' src={assets.samsung_logo} alt="Samsung" />
-            <img className='partner-logo h-6 opacity-45 hover:opacity-100 transition-opacity duration-200 object-contain' src={assets.amazon_logo} alt="Amazon" />
-            <img className='partner-logo h-6 opacity-45 hover:opacity-100 transition-opacity duration-200 object-contain' src={assets.adobe_logo} alt="Adobe" />
-        </div>
-      </div>
-
     </div>
   )
 }

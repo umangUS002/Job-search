@@ -140,7 +140,7 @@ function JobListing() {
 
       {/* RESULTS */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h3 className='text-2xl font-bold text-slate-800 dark:text-slate-105'>Latest Opportunities</h3>
+        <h3 className='text-2xl font-bold text-slate-800 dark:text-slate-100'>Latest Opportunities</h3>
         
         {userData?.resume && isSignedIn && (
           <div className="flex bg-slate-100 dark:bg-slate-950/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
@@ -223,7 +223,7 @@ function JobListing() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className='px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer'
+                className='px-5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer'
               >
                 Previous
               </button>
@@ -231,7 +231,7 @@ function JobListing() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className='px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer'
+                className='px-5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer'
               >
                 Next
               </button>
@@ -246,7 +246,7 @@ function JobListing() {
                   className={`w-10 h-10 border rounded-xl font-bold text-sm cursor-pointer transition-all duration-200 ${
                     currentPage === index + 1
                       ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-600/10'
-                      : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                      : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   {index + 1}

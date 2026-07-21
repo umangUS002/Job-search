@@ -3,7 +3,6 @@ import Job from "../models/Job.js";
 import { detectLevel, extractSalary } from "../scraper/utils/parser.js";
 import dotenv from "dotenv";
 import { extractSkills } from "../utils/extractSkills.js";
-import { esClient } from "../configs/elasticSearch.js";
 dotenv.config();
 
 export const saveJobs = async (companySlug, jobs) => {
@@ -102,33 +101,4 @@ export const saveJobs = async (companySlug, jobs) => {
     console.log("MongoDB save completed");
   }
 
-  // 🔥 2. INDEX INTO ELASTICSEARCH (IMPORTANT)
-  await Promise.all(
-    jobs.map(async (job) => {
-
-      try {
-
-        const jobUrl = job.url || job.absolute_url;
-
-        await esClient.index({
-          index: "jobs",
-          id: jobUrl, // unique id
-          document: {
-            title: job.title,
-            description: job.description || "",
-            location: job.location?.name || job.location || "Remote",
-            company: job.companyName || companySlug,
-            skills: extractSkills(job.description),
-            level: detectLevel(job.title)
-          }
-        });
-        await esClient.indices.refresh({ index: "jobs" });
-
-      } catch (err) {
-        console.log("ES indexing error:", err.message);
-      }
-    })
-  );
-
-  console.log(`Elasticsearch indexed: ${jobs.length} jobs`);
 };
